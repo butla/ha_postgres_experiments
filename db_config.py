@@ -8,7 +8,11 @@ class DBSettings:
     user: str
 
 
+# DATABASES = [
+#     DBSettings('142.93.131.34', 5432, 'postgres'),
+#     DBSettings('64.227.47.75', 5432, 'postgres'),
+# ]
 DATABASES = [
-    DBSettings('142.93.131.34', 5432, 'postgres'),
-    DBSettings('64.227.47.75', 5432, 'postgres'),
+    DBSettings('localhost', 5432, 'postgres'),
+    DBSettings('localhost', 5433, 'postgres'),
 ]

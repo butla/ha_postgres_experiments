@@ -8,6 +8,7 @@ authors = ["Michal Bultrowicz <michal.bultrowicz@gmail.com>"]
 python = "^3.8"
 psycopg2 = "^2.8"
 tenacity = "^6.1"
+prometheus_client = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
 ptpython = "^3.0"

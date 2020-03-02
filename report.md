@@ -75,10 +75,9 @@ CockroachDB documents
 Questions
 ==========
 
-* can we have a single cluster geographically distributed?
-    * in yugabyte, only one cluster can be primary, others are read replicas
 * what risk are we alleviating by the secondary DC? When was the tower down last time?
-  What does it mean when the system goes down? The routing that  ,
+  What does it mean when the system goes down? The routing that will be set up by the system can
+  live on its own for 10 seconds, right?
 
 
 Problems
@@ -152,16 +151,13 @@ Outputs
 | 2    | 411     |
 | 1    | 452     |
 +------+---------+
+* gotta check write latencies with synchronous replication
+* distributed solution write speeds compared to just PG?
+* https://limblecmms.com/blog/mttr-mtbf-mttf-guide-to-failure-metrics/
+* get measurements in, start talking about numbers!
 
 TODO
 ====
 
-* do failover with asynchronous replication, show lost records
-    * add password verification - people are scanning ports, I don't want them messing with me
-* prove that with sychronous WAL the follower is in the same state as the main one
-    * have metrics showing query latency and time compared to single instance
-* show failover with synchronous WAL replication
-* PI on yugabyte / cockroach
-* killing instances with yugabyte / cockroach
-    * will we have the same off-by-one problem as with local postgres?
-* put notes under https://wiki.tvac.bt.co.uk/display/NGMN/Resilient+Design+Considerations
+* measure the recovery times https://limblecmms.com/blog/mttr-mtbf-mttf-guide-to-failure-metrics/
+* measurements with seaborn and jupyter? export logs from postgres to see how it's running?

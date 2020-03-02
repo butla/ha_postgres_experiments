@@ -5,7 +5,7 @@ if [ ! -v VIRTUAL_ENV ]; then
     echo ERROR! Run this in virtual env!
     exit 1
 fi
-TARGET_WRITES=6000
+TARGET_WRITES=10000
 
 set -e
 
@@ -78,12 +78,12 @@ echo "--- enabling synchronous standby in the primary"
 docker exec $PRIMARY_PG bash -c "echo \"synchronous_standby_names = '*'\" >> /var/lib/postgresql/data/postgresql.conf"
 docker exec $PRIMARY_PG su postgres -c 'pg_ctl reload'
 
-python hit_db.py --target-id 1 --successful-writes-target $TARGET_WRITES &
-python hit_db.py --target-id 2 --successful-writes-target $TARGET_WRITES &
-python hit_db.py --target-id 3 --successful-writes-target $TARGET_WRITES &
-python hit_db.py --target-id 4 --successful-writes-target $TARGET_WRITES &
+python hit_db.py --target-id 1 --prometheus-port 8000 --successful-writes-target $TARGET_WRITES &
+python hit_db.py --target-id 2 --prometheus-port 8001 --successful-writes-target $TARGET_WRITES &
+python hit_db.py --target-id 3 --prometheus-port 8002 --successful-writes-target $TARGET_WRITES &
+python hit_db.py --target-id 4 --prometheus-port 8003 --successful-writes-target $TARGET_WRITES &
 
-sleep 5
+sleep 10
 
 kill_primary_pg
 docker exec $SECONDARY_PG su postgres -c 'pg_ctl promote'

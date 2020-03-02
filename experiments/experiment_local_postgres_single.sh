@@ -29,8 +29,9 @@ docker volume create pgdata
 run_pg
 
 python reset_db.py
-python hit_db.py --target-id 1 --successful-writes-target $TARGET_WRITES &
-python hit_db.py --target-id 2 --successful-writes-target $TARGET_WRITES &
+python hit_db.py --target-id 1 --prometheus-port 8000 --successful-writes-target $TARGET_WRITES &
+python hit_db.py --target-id 2 --prometheus-port 8001 --successful-writes-target $TARGET_WRITES &
+
 
 sleep 5
 kill_pg
