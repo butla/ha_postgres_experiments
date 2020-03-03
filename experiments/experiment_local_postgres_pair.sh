@@ -5,7 +5,7 @@ if [ ! -v VIRTUAL_ENV ]; then
     echo ERROR! Run this in virtual env!
     exit 1
 fi
-TARGET_WRITES=10000
+TARGET_WRITES=5000
 
 set -e
 

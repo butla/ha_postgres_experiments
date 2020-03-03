@@ -5,6 +5,22 @@ Michał Bultrowicz
 (team "Postgres is King")
 2020-03-03
 
+Distributed databases problem
+=============================
+
+**Apps need to be aware of the DB properties**
+
+Consensus algorithm used in YugabyteDB and CockroachDB
+https://raft.github.io/
+
+* Complex (funky)
+* Consistency or write performance penalty compared to non-distributed solutions
+
+"Eventual" consistency (NoSQL):
+
+* Couchbase
+
+
 
 What I tried
 ============
@@ -18,6 +34,10 @@ Single local
   but we'll still get an error because the DB goes down after it writes, but before it responds
 
 TODO have metrics
+TODO how much do file writes slow it down?
+     what happens with 16 workers
+TODO my machine specs
+
 
 * consistency check
     * two database clients for two nodes
@@ -28,16 +48,6 @@ TODO have metrics
         * break one node at a time
         * break two nodes
         * partition the network
-* see how many retries were made in total by the apps
-* TODO should show inconsistencies in some setup without waiting for writes
-* visualize as a chart of some metric with vertical lines for node failures?
-* network partition between the DC? How will it work?
-* celery task runs and DB going down?
-
-* maybe do WAL replication in the end?
-
-
-
 
 
 Outputs
@@ -80,6 +90,7 @@ Outputs
 * get measurements in, start talking about numbers!
 * apps - just do dumb retries for reads, and ETag based retries with writes (everything that introduces changes)
 
+
 TODO
 ====
 
@@ -89,13 +100,17 @@ TODO
 * proposed architecture -> simple one with two nodes in main DC, one in the other
 * proposed architecture if we need more performance:
   * pgpool in front of pq instances if it doesn't introduce much lag
-  * 
 * we know PG so we can rely on it, not be surprised, waste time scratching our head.
   And we can tweak the parameters a lot.
 * show raft architecture saying it's complicated
+* see how many retries were made in total by the apps
+* should show inconsistencies in some setup without waiting for writes
+* visualize as a chart of some metric with vertical lines for node failures?
+* network partition between the DC? How will it work?
+* celery task runs and DB going down?
 
 
-Requirements (TODO put them on the drawing)
+Requirements
 ============
 
 Shared Nothing
@@ -149,13 +164,10 @@ Nodes within site and across the site
 * for postgres: https://www.postgresql.org/docs/current/warm-standby.html#STREAMING-REPLICATION-MONITORING
 
 
-
 Arguments for not using Oracle Open source
 ==============================
 
 * you don't need licenses, development and deployments are easier and non-bureaucratic
-
-
 
 
 Questions
@@ -180,8 +192,8 @@ Problems
     * can we ensure no write is lost when one cluster goes offline?
 
 
-Notes
-=====
+Notes, sources
+==============
 
 https://bravenewgeek.com/you-cannot-have-exactly-once-delivery/
 https://www.citusdata.com/blog/2018/02/21/three-approaches-to-postgresql-replication/
@@ -192,3 +204,4 @@ https://raft.github.io/raft.pdf
 https://www.yugabyte.com/yugabyte-db-vs-cockroachdb/
 https://docs.yugabyte.com/latest/architecture/2dc-deployments/
 "HA Guide_ Oracle vs CockroachDB" from Cockroach Labs
+https://blog.yugabyte.com/how-does-consensus-based-replication-work-in-distributed-databases/

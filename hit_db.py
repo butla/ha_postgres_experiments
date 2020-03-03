@@ -33,6 +33,8 @@ def main(
     write_times = prometheus_client.Summary('write_times', 'How long successful writes took.')
 
     while successes != successful_writes_target:
+        if successes % 200 == 0:
+            print(successes, 'writes completed')
         try:
             query_start = perf_counter()
 
