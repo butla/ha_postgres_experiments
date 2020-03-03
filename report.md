@@ -6,92 +6,18 @@ Michał Bultrowicz
 2020-03-03
 
 
-Requirements
+What I tried
 ============
 
-Shared Nothing
----------------
-Storage failure in a site should not result in all Database nodes being impacted.
-Storage failure shall only impact a Database Node
+TODO say what these experiments prove
 
-* Can be done with failover of the databases between the sites.
+Single local
+------------
 
+* even with single postgres instance we can do a successful write,
+  but we'll still get an error because the DB goes down after it writes, but before it responds
 
-Utilize the capacity with all Database nodes in a site for  High Read/Write throughput
------------------------------------------------
-Application server can read/write to any database node in the cluster.
-For e.g. if a single Database server supports 100 Reads and Writes Per second then
-if there are 3 Database nodes does it support 300 Reads and writes per second.
-
-* maybe we don't need that performance
-* Can be done with Citus. Can Citus send WAL between datacenters?
-  Or does every node have a follower?
-
-
-Upon a Database node failure Application server should detect the failure
------------------------------------------------
-and subsequent Reads and write should be redirected to the healthy database nodes and not to
-the faulty one. In this scenario  the reads and writes sent to the faulty node will fail
-but will a retry of it by application result in reads and writes being redirected to the
-healthy node
-
-* Will be handled by the app
-
-
-Write in Site 1 should be replicated to Database nodes in Site 2 and Vice versa
------------------------------------------------------
-
-Can the application control through the write call to database whether it waits for the writes
-to happen to a node in the Primary site, replicated to all other nodes within the site and
-then replicated to the nodes in other site
-OR Application considers write to be successful once the data is written to a node in the
-site and then the data is replicated asynchronously to other nodes within the site and across
-other site 
-
-* in postgres those settings are done on the database
-
-
-Monitoring
-----------
-Can we check if all nodes in the Database have the data in consistent state.
-Nodes within site and across the site
-
-* for postgres: https://www.postgresql.org/docs/current/warm-standby.html#STREAMING-REPLICATION-MONITORING
-
-
-
-Arguments for not using Oracle
-==============================
-
-* you don't need licenses, development and deployments are easier and non-bureaucratic
-
-
-
-
-Questions
-==========
-
-* what risk are we alleviating by the secondary DC? When was the tower down last time?
-  What does it mean when the system goes down? The routing that will be set up by the system can
-  live on its own for 10 seconds, right?
-
-
-Problems
-========
-
-* Doing an operation, but becoming cut off from the rest of the world.
-  Only with access to our DB nodes.
-  We have the latest state, but it can't be written.
-    * if we require confirmation on writes it won't be a problem
-    * if something was already done to the routers, but we
-* DB that was attempted to be written fails, retry should work with a different node
-* can Camunda wait for the DB to become available when it can't write the task status?
-* things to have in mind with multimaster:
-    * can we ensure no write is lost when one cluster goes offline?
-
-
-Experiment
-===========
+TODO have metrics
 
 * consistency check
     * two database clients for two nodes
@@ -111,11 +37,12 @@ Experiment
 * maybe do WAL replication in the end?
 
 
+
+
+
 Outputs
 ========
 
-* even with single postgres instance we can do a successful write,
-  but we'll still get an error because the DB goes down after it writes, but before it responds
 * stumbled upon a bug with yugabyte when writing to a single row - https://github.com/YugaByte/yugabyte-db/issues/1233
 * Yugabyte seems closer to postgres that cockroach and boasts more performance and simplicity.
 * we should test the robustness with empty celery task graphs, and with empty camunda tasks
@@ -151,6 +78,7 @@ Outputs
 * distributed solution write speeds compared to just PG?
 * https://limblecmms.com/blog/mttr-mtbf-mttf-guide-to-failure-metrics/
 * get measurements in, start talking about numbers!
+* apps - just do dumb retries for reads, and ETag based retries with writes (everything that introduces changes)
 
 TODO
 ====
@@ -165,6 +93,91 @@ TODO
 * we know PG so we can rely on it, not be surprised, waste time scratching our head.
   And we can tweak the parameters a lot.
 * show raft architecture saying it's complicated
+
+
+Requirements (TODO put them on the drawing)
+============
+
+Shared Nothing
+---------------
+Storage failure in a site should not result in all Database nodes being impacted.
+Storage failure shall only impact a Database Node
+
+* Can be done with failover of the databases between the sites.
+
+
+Utilize all node capacity
+-------------------------
+Application server can read/write to any database node in the cluster.
+For e.g. if a single Database server supports 100 Reads and Writes Per second then
+if there are 3 Database nodes does it support 300 Reads and writes per second.
+
+* maybe we don't need that performance
+* Can be done with Citus. Can Citus send WAL between datacenters?
+  Or does every node have a follower?
+
+
+Application should detect node failure
+--------------------------------------
+and subsequent Reads and write should be redirected to the healthy database nodes and not to
+the faulty one. In this scenario  the reads and writes sent to the faulty node will fail
+but will a retry of it by application result in reads and writes being redirected to the
+healthy node
+
+* No need with pgpool
+
+
+Bidirectional replication between sites
+-----------------------------------------------------
+
+Can the application control through the write call to database whether it waits for the writes
+to happen to a node in the Primary site, replicated to all other nodes within the site and
+then replicated to the nodes in other site
+OR Application considers write to be successful once the data is written to a node in the
+site and then the data is replicated asynchronously to other nodes within the site and across
+other site 
+
+* we only go one way, we failover, then we go the other way
+    * we can automate pgpool for that
+
+
+Monitoring
+----------
+Can we check if all nodes in the Database have the data in consistent state.
+Nodes within site and across the site
+
+* for postgres: https://www.postgresql.org/docs/current/warm-standby.html#STREAMING-REPLICATION-MONITORING
+
+
+
+Arguments for not using Oracle Open source
+==============================
+
+* you don't need licenses, development and deployments are easier and non-bureaucratic
+
+
+
+
+Questions
+==========
+
+* what risk are we alleviating by the secondary DC? When was the tower down last time?
+  What does it mean when the system goes down? The routing that will be set up by the system can
+  live on its own for 10 seconds, right?
+
+
+Problems
+========
+
+* Doing an operation, but becoming cut off from the rest of the world.
+  Only with access to our DB nodes.
+  We have the latest state, but it can't be written.
+    * if we require confirmation on writes it won't be a problem
+    * if something was already done to the routers, but we
+* DB that was attempted to be written fails, retry should work with a different node
+* can Camunda wait for the DB to become available when it can't write the task status?
+* things to have in mind with multimaster:
+    * can we ensure no write is lost when one cluster goes offline?
 
 
 Notes
