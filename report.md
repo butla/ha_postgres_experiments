@@ -1,3 +1,11 @@
+HA with PostgreSQL
+======================
+
+Michał Bultrowicz
+(team "Postgres is King")
+2020-03-03
+
+
 Requirements
 ============
 
@@ -58,18 +66,6 @@ Arguments for not using Oracle
 * you don't need licenses, development and deployments are easier and non-bureaucratic
 
 
-Notes
-=====
-
-https://bravenewgeek.com/you-cannot-have-exactly-once-delivery/
-https://www.citusdata.com/blog/2018/02/21/three-approaches-to-postgresql-replication/
-http://docs.citusdata.com/en/v9.2/cloud/availability.html
-cap theorem
-https://docs.oracle.com/cd/B28359_01/server.111/b28281/architectures.htm#g1012375
-https://raft.github.io/raft.pdf
-https://www.yugabyte.com/yugabyte-db-vs-cockroachdb/
-https://docs.yugabyte.com/latest/architecture/2dc-deployments/
-CockroachDB documents
 
 
 Questions
@@ -161,3 +157,25 @@ TODO
 
 * measure the recovery times https://limblecmms.com/blog/mttr-mtbf-mttf-guide-to-failure-metrics/
 * measurements with seaborn and jupyter? export logs from postgres to see how it's running?
+* proposed architecture - just use AWS RDS, they should have all of that - we can test
+* proposed architecture -> simple one with two nodes in main DC, one in the other
+* proposed architecture if we need more performance:
+  * pgpool in front of pq instances if it doesn't introduce much lag
+  * 
+* we know PG so we can rely on it, not be surprised, waste time scratching our head.
+  And we can tweak the parameters a lot.
+* show raft architecture saying it's complicated
+
+
+Notes
+=====
+
+https://bravenewgeek.com/you-cannot-have-exactly-once-delivery/
+https://www.citusdata.com/blog/2018/02/21/three-approaches-to-postgresql-replication/
+http://docs.citusdata.com/en/v9.2/cloud/availability.html
+CAP theorem
+https://docs.oracle.com/cd/B28359_01/server.111/b28281/architectures.htm#g1012375
+https://raft.github.io/raft.pdf
+https://www.yugabyte.com/yugabyte-db-vs-cockroachdb/
+https://docs.yugabyte.com/latest/architecture/2dc-deployments/
+"HA Guide_ Oracle vs CockroachDB" from Cockroach Labs
